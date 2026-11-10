@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plan your Immersive Story Club (prototype v0)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Young+Serif&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F2F0F8;
+  --surface: #FFFFFF;
+  --ink: #241C36;
+  --muted: #62597A;
+  --line: #D8D2E8;
+  --accent: #5B3F8C;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E7DFF5;
+  --moss: #3F6B4C;
+  --moss-soft: #E1EEE3;
+  --note: #8A4B2E;
+  --note-soft: #F6E8DF;
+  --serif: "Young Serif", Georgia, "Times New Roman", serif;
+  --sans: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #17131F; --surface: #211B2D; --ink: #ECE8F5; --muted: #A59BBD;
+    --line: #3A3050; --accent: #B79CE8; --accent-ink: #17131F; --accent-soft: #33284A;
+    --moss: #8FC49D; --moss-soft: #1F3326; --note: #E3A982; --note-soft: #3A2A20;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #17131F; --surface: #211B2D; --ink: #ECE8F5; --muted: #A59BBD;
+  --line: #3A3050; --accent: #B79CE8; --accent-ink: #17131F; --accent-soft: #33284A;
+  --moss: #8FC49D; --moss-soft: #1F3326; --note: #E3A982; --note-soft: #3A2A20;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); font-size: 1.0625rem; line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 44rem; margin: 0 auto; padding: 1.25rem 1.25rem 4rem; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 400; line-height: 1.15; }
+h1 { font-size: clamp(2.1rem, 7vw, 3.3rem); margin: 0 0 1rem; letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.5rem, 4.5vw, 2rem); margin: 0 0 0.5rem; }
+h3 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+p { margin: 0 0 1rem; }
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.proto-bar {
+  font-size: 0.875rem; color: var(--note); background: var(--note-soft);
+  padding: 0.5rem 0.9rem; border-radius: 0.5rem; margin-bottom: 2rem;
+}
+.lede { font-size: 1.15rem; color: var(--muted); max-width: 34rem; }
+.btn {
+  font: inherit; font-weight: 600; cursor: pointer;
+  border: 2px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+  padding: 0.7rem 1.4rem; border-radius: 999px;
+}
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+.spacer { flex: 1; }
+
+/* question screens */
+.progress { color: var(--muted); font-size: 0.95rem; margin-bottom: 0.5rem; }
+.track { height: 4px; background: var(--line); border-radius: 2px; margin-bottom: 2rem; overflow: hidden; }
+.track > span { display: block; height: 100%; background: var(--accent); transition: width 200ms ease; }
+fieldset { border: 0; padding: 0; margin: 0 0 1.5rem; }
+legend { padding: 0; }
+.help { color: var(--muted); margin: 0.25rem 0 1.25rem; }
+.options { display: grid; gap: 0.5rem; }
+.opt {
+  display: flex; gap: 0.75rem; align-items: flex-start;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 0.75rem;
+  padding: 0.8rem 1rem; cursor: pointer;
+}
+.opt:has(input:checked) { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.opt input { margin-top: 0.35rem; accent-color: var(--accent); }
+.opt small { display: block; color: var(--muted); }
+.num { display: flex; align-items: center; gap: 0.75rem; }
+.num input, textarea, .field input {
+  font: inherit; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 0.6rem; padding: 0.6rem 0.8rem;
+}
+.num input { width: 6.5rem; font-size: 1.4rem; }
+textarea, .field input { width: 100%; }
+textarea { min-height: 6rem; resize: vertical; }
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-weight: 500; margin-bottom: 0.25rem; }
+
+/* lesson from the season: the one recurring device */
+.lesson {
+  border-left: 3px solid var(--moss); background: var(--moss-soft);
+  padding: 0.8rem 1rem; border-radius: 0 0.6rem 0.6rem 0; margin: 0 0 1.5rem;
+}
+.lesson p { margin: 0; }
+.lesson .src { font-size: 0.875rem; color: var(--muted); margin-top: 0.35rem; }
+.quote-slot {
+  border: 1px dashed var(--line); border-radius: 0.6rem; padding: 0.7rem 1rem;
+  color: var(--muted); font-size: 0.95rem; margin: 0 0 1.5rem;
+}
+
+/* plan */
+.plan section { margin: 2.5rem 0 0; }
+.format-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 1rem;
+  padding: 1.5rem; margin-top: 1.5rem;
+}
+.format-name { font-family: var(--serif); font-size: clamp(1.8rem, 6vw, 2.6rem); line-height: 1.1; margin: 0.25rem 0 0.75rem; }
+.warn {
+  background: var(--note-soft); color: var(--ink); border-left: 3px solid var(--note);
+  padding: 0.7rem 1rem; border-radius: 0 0.6rem 0.6rem 0; margin: 1rem 0 0;
+}
+.timeline { list-style: none; padding: 0; margin: 1rem 0 0; }
+.timeline li {
+  display: grid; grid-template-columns: 4.5rem 1fr; gap: 1rem;
+  padding: 0.8rem 0; border-top: 1px solid var(--line);
+}
+.timeline .t { font-variant-numeric: tabular-nums; color: var(--accent); font-weight: 600; }
+.timeline .d { color: var(--muted); font-size: 0.95rem; display: block; }
+ul.plain { padding-left: 1.2rem; margin: 0.5rem 0 0; }
+ul.plain li { margin-bottom: 0.4rem; }
+.checks { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+.checks li { margin-bottom: 0.35rem; }
+.checks label { display: flex; gap: 0.6rem; cursor: pointer; }
+.checks input { margin-top: 0.4rem; accent-color: var(--moss); }
+.summary {
+  white-space: pre-wrap; font-family: var(--sans); font-size: 0.95rem;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 0.75rem;
+  padding: 1rem; overflow-x: auto;
+}
+details.logic { margin-top: 2.5rem; background: var(--note-soft); border-radius: 0.75rem; padding: 0.8rem 1rem; }
+details.logic summary { cursor: pointer; font-weight: 600; color: var(--note); }
+details.logic li { margin-bottom: 0.3rem; }
+.foot { margin-top: 3rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media print {
+  .proto-bar, .foot, details.logic, .no-print { display: none !important; }
+  body { background: #fff; color: #000; }
+  .format-card, .summary { border-color: #999; }
+}
+</style>
+</head>
+<body>
+<main class="wrap" id="app" aria-live="polite"></main>
+
+<script>
+/* ------------------------------------------------------------------
+   Content. Everything here comes from the question map doc (Nov 10)
+   and the facilitator's guide. Edit text here, not in the render code.
+------------------------------------------------------------------ */
+
+const QUESTIONS = [
+  { id: "role", type: "single", title: "What's your role?",
+    help: "We'll word the plan for the kind of place you work.",
+    options: ["Librarian", "Professor or lecturer", "Teacher", "Community engagement", "Makerspace manager", "Curator", "Filmmaker or impact producer", "Something else"] },
+
+  { id: "audience", type: "single", title: "Who will come?",
+    options: [
+      { v: "adults", label: "Adults" },
+      { v: "teens", label: "Teens", note: "Adds media releases, parent consent and shorter films" },
+      { v: "mixed", label: "Mixed ages or families", note: "Adds media releases for anyone under 18" }
+    ],
+    lesson: { text: "Get media releases for anyone under 18 before the day, not at the door.", src: "From this season" } },
+
+  { id: "people", type: "number", title: "About how many people do you expect?",
+    help: "Your best guess. Most clubs this season had between 6 and 20.", min: 2, max: 40, def: 12 },
+
+  { id: "headsets", type: "number", title: "How many headsets can you use?",
+    help: "Count the ones you have or can borrow for the day. Enter 0 if you don't have any yet.", min: 0, max: 40, def: 6,
+    lesson: { text: "Take headsets out of their boxes and set them aside, ready but not center stage. If they're the focus, people put one on before they've met anyone.", src: "Facilitator's guide" } },
+
+  { id: "time", type: "single", title: "How long is your session?",
+    options: [
+      { v: 60, label: "60 minutes", note: "Tight. Works for short films with headsets for everyone." },
+      { v: 90, label: "90 minutes" },
+      { v: 120, label: "2 hours", note: "What most of this season's sessions used" }
+    ] },
+
+  { id: "space", type: "single", title: "What kind of space do you have?",
+    options: [
+      { v: "one", label: "One room" },
+      { v: "two", label: "Two rooms, or one room you can divide" },
+      { v: "open", label: "An open or exhibition space" },
+      { v: "classroom", label: "A classroom" }
+    ],
+    lesson: { text: "Aim for a room that feels like a living room: soft seating, lamps, somewhere to set headsets on a shelf, charged and ready.", src: "From this season" } },
+
+  { id: "familiar", type: "single", title: "How familiar are you with VR?",
+    options: [
+      { v: "never", label: "I've never tried it" },
+      { v: "tried", label: "I've tried it a few times" },
+      { v: "comfortable", label: "I'm comfortable setting up headsets for others" }
+    ],
+    lesson: { text: "The technology isn't designed for this kind of gathering yet, so something will go wrong. Hosts who laugh with the bugs keep the room relaxed.", src: "From this season" } },
+
+  { id: "themes", type: "text", optional: true, title: "What themes or programs could a VR film connect to?",
+    help: "For example, a climate series, a local history project, or a group that already meets at your venue.",
+    quoteSlot: true },
+
+  { id: "cadence", type: "single", title: "How often would you like to host?",
+    options: [
+      { v: "once", label: "Once, to try it" },
+      { v: "biweekly", label: "Every other week" },
+      { v: "monthly", label: "Monthly" },
+      { v: "unsure", label: "Not sure yet" }
+    ],
+    lesson: { text: "We don't suggest weekly. It was too much for participants this season; every other week or monthly gave people time to come back.", src: "From this season" } },
+
+  { id: "location", type: "text", optional: true, title: "Where are you?",
+    help: "City and country, and any nearby universities, libraries or arts groups you already know. This helps us suggest partners." },
+
+  { id: "cohost", type: "single", title: "Will someone host with you?",
+    options: [
+      { v: "yes", label: "Yes" },
+      { v: "notyet", label: "Not yet, but I could find someone" },
+      { v: "no", label: "No, I'll host alone", note: "Works best when the space already has regulars" }
+    ],
+    lesson: { text: "While one host helps someone into a headset, the other keeps the room going. Two hosts made every session this season easier.", src: "From this season" } },
+
+  { id: "worries", type: "multi", optional: true, title: "What worries you most about hosting?",
+    help: "Pick any that apply. The plan will lead with tips for these.",
+    options: [
+      { v: "headsets", label: "Getting or managing headsets" },
+      { v: "space", label: "Finding the right space" },
+      { v: "films", label: "Choosing films" },
+      { v: "turnout", label: "Getting people to come" },
+      { v: "tech", label: "Running the tech on the day" },
+      { v: "talk", label: "Leading the conversation" },
+      { v: "other", label: "Something else" }
+    ],
+    quoteSlot: true }
+];
+
+const FORMATS = {
+  wwyc: { name: "Watch When You Can, Talk When You Can",
+    how: "People take turns as a headset frees up. Everyone else does a making activity or talks in small groups. Good for drop-in programs." },
+  pair: { name: "Pair and Share",
+    how: "Everyone watches at once, then talks in pairs before the whole-group circle." },
+  wr: { name: "Witness and Return",
+    how: "Pairs share a headset and take turns: one watches while the other keeps them company and writes. Then they swap." },
+  split: { name: "Split groups",
+    how: "Half the group watches in pairs while the other half does an activity with printed prompts, then they swap." },
+  wwycp: { name: "Watch When You Can, with a parallel activity",
+    how: "People take turns as headsets free up, with a clear activity set out at the tables for everyone waiting." }
+};
+
+// Longest film that fits, from the doc's timing table
+const FILM_CAP = {
+  pair:  { 60: 10, 90: 25, 120: 40 },
+  turns: { 60: null, 90: 15, 120: 25 }
+};
+
+const TIPS = {
+  headsets: "Headsets: ISC can help you borrow from a nearby university or arts organization. Charge and load them the day before, and keep a spare cable.",
+  space: "Space: a table in a fluorescent-lit room works if it's all you have. Soft seating and lamps help people relax.",
+  films: "Films: ISC can suggest films whose artists have agreed to be shown. Watch the film again yourself before the session.",
+  turnout: "Turnout: post an event page on Luma and share it where locals already look, such as your venue's mailing list and local Discords.",
+  tech: "Tech on the day: test Wi-Fi and every headset the day before. In the opening circle, say out loud that bugs are normal.",
+  talk: "Conversation: open with something you overheard in the pairs. Prompt cards and a talking object help when nobody speaks first.",
+  other: "Tell us what's on your mind when we talk; it helps us improve this toolkit."
+};
+
+/* ------------------------------------------------------------------
+   State and logic
+------------------------------------------------------------------ */
+const answers = {};
+let step = -1; // -1 = intro
+let exitedEarly = false;
+
+function decide(a) {
+  const P = a.people, H = a.headsets, T = a.time;
+  const youth = a.audience === "teens" || a.audience === "mixed";
+  const rules = [];
+  if (H === 0) return { exit: true, rules: ["0 headsets: plan ends and goes to intake"] };
+
+  let key;
+  const perHeadset = P / H;
+  if (H === 1) { key = "wwyc"; rules.push("1 headset → Watch When You Can"); }
+  else if (H >= P) { key = "pair"; rules.push(`${H} headsets for ${P} people → headsets for everyone → Pair and Share`); }
+  else if (perHeadset <= 2) { key = "wr"; rules.push(`${P} people / ${H} headsets = ${perHeadset.toFixed(1)} per headset (≤ 2) → Witness and Return`); }
+  else if (a.space === "two") { key = "split"; rules.push(`${perHeadset.toFixed(1)} per headset (> 2) and two rooms → Split groups`); }
+  else { key = "wwycp"; rules.push(`${perHeadset.toFixed(1)} per headset (> 2) and one space → Watch When You Can with a parallel activity`); }
+
+  let cap = key === "pair" ? FILM_CAP.pair[T] : FILM_CAP.turns[T];
+  const warnings = [];
+  if (cap === null) {
+    warnings.push(`At ${T} minutes there isn't room for two turns in a headset. Choose 90 minutes or more, or a film under 8 minutes.`);
+    rules.push("60 min with turn-taking → doc says not recommended");
+    cap = 8;
+  }
+  if (youth) { cap = Math.max(5, cap - 5); rules.push("Under-18s present → film cap reduced by 5 min (placeholder rule)"); }
+
+  // turn-taking formats: how many people actually get a turn?
+  if (key === "wwyc" || key === "wwycp") {
+    const viewing = T - 45;
+    const turnsPerHeadset = Math.max(1, Math.floor(viewing / (cap + 3)));
+    const canWatch = turnsPerHeadset * H;
+    if (canWatch < P) {
+      warnings.push(`With ${H} headset${H > 1 ? "s" : ""} and a ${cap}-minute film, about ${canWatch} of ${P} people will get a turn. Pick a shorter film or plan the parallel activity as the main event for the rest.`);
+      rules.push(`Turn check: ${viewing} min viewing / (${cap} + 3 min swap) × ${H} = ${canWatch} turns for ${P} people`);
+    }
+  }
+  if (a.cohost === "no" && P > 12) {
+    warnings.push(`Hosting ${P} people alone is a lot. Ask an early arrival to help people into headsets.`);
+    rules.push("Solo host and > 12 people → warning");
+  }
+  if (a.space === "open") rules.push("Open space treated as one room (doc only lets two rooms split; worth deciding)");
+  return { key, cap, warnings, rules, youth };
+}
+
+function why(a, d) {
+  const H = a.headsets, P = a.people;
+  switch (d.key) {
+    case "wwyc": return `With one headset, people take turns while the room keeps talking and making.`;
+    case "pair": return `You have a headset for each of your ${P} people, so everyone can watch together and talk in pairs right after.`;
+    case "wr": return `With ${H} headsets for ${P} people, pairs can share one: each person both watches and keeps someone company.`;
+    case "split": return `With more than two people per headset, two rooms let one half watch while the other half works on an activity.`;
+    case "wwycp": return `With more than two people per headset in one space, turn-taking plus a table activity keeps everyone busy.`;
+  }
+}
+
+function runOfShow(a, d) {
+  const T = a.time;
+  const items = [];
+  let t = 0;
+  const add = (min, title, detail) => { items.push({ t, title, detail }); t += min; };
+  add(10, "Arrival and prompt", "Check people in, tea out, an arrival prompt on the screen or on half-sheets.");
+  add(10, "Opening circle", "Three-word introductions. Say why VR together: it's built for being alone, and we're using it to gather. Name that the tech is clunky.");
+  const viewing = T - 45;
+  if (d.key === "wr") {
+    add(Math.ceil(viewing / 2), "First turn", `Pairs share a headset. Viewers watch (up to ${d.cap} min); partners keep them company and write on the Witness card.`);
+    add(Math.floor(viewing / 2), "Swap and second turn", "Wipe down, swap, and the other partner watches. Allow about 10 minutes for swaps overall.");
+  } else if (d.key === "split") {
+    add(Math.ceil(viewing / 2), "Group A watches, Group B makes", `Group A watches in pairs (up to ${d.cap} min). Group B works from printed prompts.`);
+    add(Math.floor(viewing / 2), "Swap", "Groups switch rooms.");
+  } else if (d.key === "pair") {
+    add(viewing, "Everyone watches", `Help people in, then watch the room. Film up to ${d.cap} min.`);
+  } else {
+    add(viewing, "Turns in the headset", `People take turns as a headset frees up (film up to ${d.cap} min). Everyone else talks or works on the table activity.`);
+  }
+  add(5, "Pairs", "Partners talk with the pair prompt before the whole group.");
+  add(15, "Circle", "Open with something you overheard. Keep it moving and fair.");
+  add(5, "Closing", "Closing question, the next date" + (a.cadence === "once" ? "" : ", and an invite to the Discord") + ". Hand out the survey.");
+  items.push({ t, title: "Done", detail: "" });
+  return items;
+}
+
+function materials(a, d) {
+  const list = [
+    "Headsets charged and loaded with the film",
+    "Headphones, untangled (the inexpensive Sony ones work well)",
+    "Hypoallergenic wipes",
+    "The arrival prompt, on a screen or printed",
+    "Half-sheet prompts and pens in a cup",
+    "Clipboards or something hard to write on",
+    "Markers or crayons",
+    "A timer or talking object",
+    "Tea, and snacks if the budget allows",
+    "Opt-out photo stickers",
+    "An hour for setup"
+  ];
+  if (d.key === "split" || d.key === "wwycp" || d.key === "wwyc") list.push("Materials for the table activity, and large paper if you'll make a group mural");
+  if (a.cohost !== "yes") list.push("Someone to greet people at the door");
+  if (d.youth) list.push("Signed media releases and parent consent forms");
+  if (a.familiar === "never") list.push("A practice run with the headsets before the day");
+  return list;
+}
+
+function cards(d) {
+  const c = ["Welcome card", "Room guidelines card", `${FORMATS[d.key].name} card`];
+  if (d.key === "wr" || d.key === "pair") c.push("Witness, Return and Together cards");
+  c.push("Reflection deck");
+  return c;
+}
+
+function iscSummary(a, d) {
+  const L = [];
+  L.push("ISC intake summary (prototype)");
+  L.push("");
+  L.push(`Role: ${a.role || "-"}`);
+  L.push(`Audience: ${labelOf("audience", a.audience)}`);
+  L.push(`People: ${a.people ?? "-"}   Headsets: ${a.headsets ?? "-"}`);
+  if (!d.exit) {
+    L.push(`Time: ${a.time} min   Space: ${labelOf("space", a.space)}`);
+    L.push(`VR familiarity: ${labelOf("familiar", a.familiar)}`);
+    L.push(`Themes: ${a.themes || "-"}`);
+    L.push(`Cadence: ${labelOf("cadence", a.cadence)}`);
+    L.push(`Location: ${a.location || "-"}`);
+    L.push(`Co-host: ${labelOf("cohost", a.cohost)}`);
+    L.push(`Worries: ${(a.worries || []).map(w => labelOf("worries", w)).join(", ") || "-"}`);
+    L.push("");
+    L.push(`Recommended format: ${FORMATS[d.key].name}, films up to ${d.cap} min`);
+    if (d.warnings.length) L.push(`Flags: ${d.warnings.length}`);
+    if (a.familiar === "never") L.push("Suggest an intro call before the first session.");
+  }
+  return L.join("\n");
+}
+
+function labelOf(qid, v) {
+  const q = QUESTIONS.find(q => q.id === qid);
+  if (v === undefined || v === null) return "-";
+  const o = (q.options || []).find(o => (typeof o === "string" ? o : o.v) === v);
+  return o ? (typeof o === "string" ? o : o.label) : String(v);
+}
+
+/* ------------------------------------------------------------------
+   Rendering
+------------------------------------------------------------------ */
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const protoBar = `<div class="proto-bar">Prototype v0 for testing the questions and the logic. Wording and look are drafts.</div>`;
+
+function render() {
+  window.scrollTo(0, 0);
+  if (step === -1) return renderIntro();
+  if (exitedEarly) return renderExit();
+  if (step >= QUESTIONS.length) return renderPlan();
+  renderQuestion(QUESTIONS[step]);
+}
+
+function renderIntro() {
+  app.innerHTML = `${protoBar}
+    <h1>Plan your Immersive Story Club</h1>
+    <p class="lede">A small group watches the same short VR film, taking turns in headsets, then talks about it together. The headset is brief; the conversation is the point.</p>
+    <p>Answer twelve questions about your headsets, people, space and time. You'll get a plan for your first session, and we'll get a summary so our first call starts from what you have. It takes about five minutes.</p>
+    <div class="quote-slot">Participant quote goes here: someone describing what a session felt like.</div>
+    <div class="row"><button class="btn" id="start">Start planning</button></div>`;
+  document.getElementById("start").onclick = () => { step = 0; render(); document.querySelector("legend, h2")?.focus(); };
+}
+
+function renderQuestion(q) {
+  const n = step + 1, total = QUESTIONS.length;
+  let body = "";
+  const val = answers[q.id];
+
+  if (q.type === "single" || q.type === "multi") {
+    const t = q.type === "single" ? "radio" : "checkbox";
+    body = `<div class="options">` + q.options.map((o, i) => {
+      const v = typeof o === "string" ? o : o.v;
+      const label = typeof o === "string" ? o : o.label;
+      const note = typeof o === "string" ? "" : (o.note || "");
+      const checked = q.type === "single" ? val === v : (val || []).includes(v);
+      return `<label class="opt"><input type="${t}" name="${q.id}" value="${esc(v)}" data-i="${i}" ${checked ? "checked" : ""}>
+        <span>${esc(label)}${note ? `<small>${esc(note)}</small>` : ""}</span></label>`;
+    }).join("") + `</div>`;
+  } else if (q.type === "number") {
+    body = `<div class="num"><input type="number" inputmode="numeric" id="numIn" min="${q.min}" max="${q.max}" value="${val ?? q.def}" aria-describedby="h-${q.id}"></div>`;
+  } else {
+    body = `<textarea id="txtIn" aria-describedby="h-${q.id}">${esc(val || "")}</textarea>`;
+  }
+
+  app.innerHTML = `${protoBar}
+    <div class="progress">Question ${n} of ${total}</div>
+    <div class="track" aria-hidden="true"><span style="width:${(n - 1) / total * 100}%"></span></div>
+    <fieldset>
+      <legend tabindex="-1"><h2>${esc(q.title)}</h2></legend>
+      ${q.help ? `<p class="help" id="h-${q.id}">${esc(q.help)}</p>` : `<div style="height:1rem"></div>`}
+      ${body}
+    </fieldset>
+    ${q.lesson ? `<div class="lesson"><p>${esc(q.lesson.text)}</p><p class="src">${esc(q.lesson.src)}</p></div>` : ""}
+    ${q.quoteSlot ? `<div class="quote-slot">Participant quote goes here.</div>` : ""}
+    <div class="row">
+      <button class="btn ghost" id="back">Back</button>
+      <span class="spacer"></span>
+      <button class="btn" id="next">${n === total ? "See my plan" : "Next"}</button>
+    </div>`;
+
+  const next = document.getElementById("next");
+  const read = () => {
+    if (q.type === "single") {
+      const el = app.querySelector(`input[name="${q.id}"]:checked`);
+      if (!el) return undefined;
+      const o = q.options[+el.dataset.i];
+      return typeof o === "string" ? o : o.v;
+    }
+    if (q.type === "multi") return [...app.querySelectorAll(`input[name="${q.id}"]:checked`)].map(el => q.options[+el.dataset.i].v);
+    if (q.type === "number") {
+      const n = parseInt(document.getElementById("numIn").value, 10);
+      return Number.isFinite(n) ? Math.min(q.max, Math.max(q.min, n)) : undefined;
+    }
+    return document.getElementById("txtIn").value.trim();
+  };
+  const valid = () => q.optional || (read() !== undefined && read() !== "");
+  const sync = () => { next.disabled = !valid(); };
+  app.addEventListener("input", sync);
+  app.addEventListener("change", sync);
+  sync();
+
+  next.onclick = () => {
+    answers[q.id] = read();
+    if (q.id === "headsets" && answers.headsets === 0) { exitedEarly = true; return render(); }
+    step++; render(); app.querySelector("legend")?.focus();
+  };
+  document.getElementById("back").onclick = () => { answers[q.id] = read(); step--; render(); };
+}
+
+function renderExit() {
+  const d = { exit: true };
+  app.innerHTML = `${protoBar}
+    <h2>Let's find you headsets first</h2>
+    <p>The plan needs headsets to work from. ISC works with a network of universities and arts organizations that lend them (Gray Area has lent its fleet before), and many libraries and nonprofits can get equipment through tech grants.</p>
+    <p>Leave your details and we'll set up a call. Once headsets are in place, the full plan opens.</p>
+    <div class="field"><label for="n">Your name</label><input id="n" autocomplete="name"></div>
+    <div class="field"><label for="o">Your organization</label><input id="o" autocomplete="organization"></div>
+    <div class="field"><label for="e">Email</label><input id="e" type="email" autocomplete="email"></div>
+    <div class="field"><label for="w">Where are you, and who's nearby?</label><textarea id="w"></textarea></div>
+    <h3>What ISC would receive</h3>
+    <div class="summary">${esc(iscSummary(answers, d))}</div>
+    <details class="logic"><summary>How this screen was chosen</summary><ul><li>Headsets = 0 → planning stops and goes to the intake (doc, Q4).</li><li>Prototype: nothing is sent anywhere.</li></ul></details>
+    <div class="foot">
+      <button class="btn ghost" id="back">Change my headset answer</button>
+      <button class="btn" id="restart">Start over</button>
+    </div>`;
+  document.getElementById("back").onclick = () => { exitedEarly = false; step = QUESTIONS.findIndex(q => q.id === "headsets"); render(); };
+  document.getElementById("restart").onclick = restart;
+}
+
+function renderPlan() {
+  const a = answers, d = decide(a);
+  const f = FORMATS[d.key];
+  const ros = runOfShow(a, d);
+  const worries = (a.worries || []).filter(w => TIPS[w]);
+  const recurring = a.cadence && a.cadence !== "once";
+
+  app.innerHTML = `${protoBar}
+  <div class="plan">
+    <h1>Your first Immersive Story Club</h1>
+    <p class="lede">${a.people} people, ${a.headsets} headset${a.headsets > 1 ? "s" : ""}, ${a.time} minutes, ${labelOf("space", a.space).toLowerCase()}.</p>
+
+    <div class="format-card">
+      <div class="help" style="margin:0">Recommended format</div>
+      <p class="format-name">${esc(f.name)}</p>
+      <p>${esc(why(a, d))} ${esc(f.how)}</p>
+      <p style="margin:0"><strong>Films up to ${d.cap} minutes.</strong>${d.youth ? " Shorter limit because under-18s are coming; add a second adult in the room." : ""}</p>
+      ${d.warnings.map(w => `<div class="warn">${esc(w)}</div>`).join("")}
+    </div>
+
+    ${worries.length ? `<section><h3>For what you're worried about</h3><ul class="plain">${worries.map(w => `<li>${esc(TIPS[w])}</li>`).join("")}</ul></section>` : ""}
+
+    <section>
+      <h3>Run of show</h3>
+      <ol class="timeline">${ros.map(r => `<li><span class="t">${r.t} min</span><span>${esc(r.title)}${r.detail ? `<span class="d">${esc(r.detail)}</span>` : ""}</span></li>`).join("")}</ol>
+    </section>
+
+    <section>
+      <h3>Materials checklist</h3>
+      <ul class="checks">${materials(a, d).map((m, i) => `<li><label><input type="checkbox" id="m${i}"><span>${esc(m)}</span></label></li>`).join("")}</ul>
+    </section>
+
+    <section>
+      <h3>Cards to print</h3>
+      <ul class="plain">${cards(d).map(c => `<li>${esc(c)}</li>`).join("")}</ul>
+    </section>
+
+    <section>
+      <h3>Prompts</h3>
+      <ul class="plain">
+        <li><strong>Arrival:</strong> a question on the screen or a half-sheet as people sit down.</li>
+        <li><strong>Opening round:</strong> three words for how you're arriving.</li>
+        <li><strong>Pairs:</strong> what stayed with you, and what did you notice your partner noticing?</li>
+        <li><strong>Closing:</strong> "What do you wish existed in VR, and what's blocking you from making it?"</li>
+      </ul>
+      ${a.themes ? `<p style="margin-top:1rem">Connect the film to <strong>${esc(a.themes)}</strong>: one local action or program people can join afterward.</p>` : ""}
+    </section>
+
+    <section>
+      <h3>Room guidelines</h3>
+      <p>Share these in the opening circle and adapt them to your space.</p>
+      <ul class="plain">
+        <li>Be curious. All questions are welcome${recurring ? ", and the Discord is there for follow-ups" : ""}.</li>
+        <li>Step up and step back, so everyone has room to speak.</li>
+        <li>Take care of each other and the equipment: the tech is clunky, so help neighbors into headsets and wipe down the gear.</li>
+        <li>Members are welcome to suggest films and share what they've seen elsewhere.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>For you as host</h3>
+      <div class="lesson"><p>Something will go wrong with the technology. A host who laughs with the bugs keeps the room relaxed, and a host who loses confidence passes that on. You're part of a network that cares more about the stories and the people than about perfect tech.</p></div>
+      ${a.cohost === "no" ? `<p>You're hosting alone. Ask one early arrival to help people into headsets, and keep the group to a size you can walk around.</p>` : ""}
+      ${a.familiar === "never" ? `<p>You haven't used VR before. Book an intro call and do a practice run with the headsets before the day.</p>` : ""}
+    </section>
+
+    <section>
+      <h3>Before the day</h3>
+      <ul class="plain">
+        <li>Test Wi-Fi and every headset the day before.</li>
+        <li>Plan content warnings for intense films.</li>
+        <li>Add a kind lateness line to the event listing.</li>
+        ${d.youth ? "<li>Collect media releases and parent consent for anyone under 18.</li>" : ""}
+      </ul>
+    </section>
+
+    <section>
+      <h3>After the session</h3>
+      <ul class="plain">
+        <li>Send a short survey: what stuck with you, what would you change, do you want to get more involved?</li>
+        ${recurring ? `<li>Set the next date before people leave (${esc(labelOf("cadence", a.cadence).toLowerCase())}).</li><li>Set up a Luma page, a mailing list and a channel for your venue on the ISC Discord.</li>` : `<li>If it went well, consider every other week or monthly. Weekly was too much for participants this season.</li>`}
+        <li>Optional: extend the film with a group mural, a craft prompt, or a local activity tied to its theme.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>What ISC receives</h3>
+      <p>This summary prepares our first call with you.</p>
+      <div class="summary" id="sum">${esc(iscSummary(a, d))}</div>
+      <div class="row no-print" style="margin-top:0.75rem"><button class="btn ghost" id="copy">Copy summary</button><span id="copied" class="help" style="margin:0"></span></div>
+    </section>
+
+    <details class="logic">
+      <summary>How this plan was chosen (for testing)</summary>
+      <ul>${d.rules.map(r => `<li>${esc(r)}</li>`).join("")}</ul>
+    </details>
+
+    <div class="foot">
+      <button class="btn ghost" id="back">Change answers</button>
+      <button class="btn ghost" id="print">Print plan</button>
+      <button class="btn" id="restart">Start over</button>
+    </div>
+  </div>`;
+
+  document.getElementById("back").onclick = () => { step = QUESTIONS.length - 1; render(); };
+  document.getElementById("print").onclick = () => window.print();
+  document.getElementById("restart").onclick = restart;
+  document.getElementById("copy").onclick = async () => {
+    try { await navigator.clipboard.writeText(document.getElementById("sum").textContent); document.getElementById("copied").textContent = "Copied"; }
+    catch (e) { document.getElementById("copied").textContent = "Copy didn't work here; select the text instead."; }
+  };
+}
+
+function restart() {
+  for (const k of Object.keys(answers)) delete answers[k];
+  exitedEarly = false; step = -1; render();
+}
+
+render();
+</script>
+</body>
+</html>
